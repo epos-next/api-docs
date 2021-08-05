@@ -1,0 +1,5 @@
+build
+node_modules
+.idea
+openapi/.DS_Store
+.DS_Store

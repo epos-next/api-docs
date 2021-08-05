@@ -1,0 +1,12 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "redoc-cli serve openapi/api.yml --watch",
+    "build": "redoc-cli bundle openapi/api.yml -o build/index.html"
+  },
+  "dependencies": {
+    "redoc-cli": "^0.11.4"
+  }
+}

@@ -1,0 +1,813 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: Epos Next
+  contact:
+    email: m@zotov.dev
+    url: 'https://zotov.dev'
+  license:
+    name: MIT Licence
+    url: 'https://github.com/zotovY/epos-next/blob/master/LICENSE'
+paths:
+  /data/:
+    get:
+      tags: [ "Data" ]
+      summary: "Получение всех необходимых данных"
+      security:
+        - JWT: [ User ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            minimum: 1
+                            example: 63
+                          name:
+                            type: string
+                            minLength: 1
+                            maxLength: 100
+                            default: "Ярослав Зотов"
+                      lessons:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/lesson"
+                        example: [
+                          {
+                            "id": 63,
+                            "subject": "Физика",
+                            "groupId": 10,
+                            "room": "201",
+                            "lessonNumber": 1,
+                            "duration": 45,
+                            "date": "2021-05-31T09:55:00.000"
+                          },
+                          {
+                            "id": 63,
+                            "subject": "Физика",
+                            "groupId": 10,
+                            "room": "203",
+                            "lessonNumber": 2,
+                            "duration": 45,
+                            "date": "2021-05-31T09:55:00.000"
+                          },
+                          {
+                            "id": 64,
+                            "subject": "Геометрия",
+                            "groupId": 11,
+                            "room": "204",
+                            "lessonNumber": 3,
+                            "duration": 45,
+                            "date": "2021-05-31T09:55:00.000"
+                          },
+                          {
+                            "id": 65,
+                            "subject": "Химия",
+                            "groupId": 12,
+                            "room": "303",
+                            "lessonNumber": 4,
+                            "duration": 45,
+                            "date": "2021-05-31T09:55:00.000"
+                          },
+                          {
+                            "id": 66,
+                            "subject": "Английский язык",
+                            "groupId": 13,
+                            "room": "209",
+                            "lessonNumber": 5,
+                            "date": "2021-05-31T09:55:00.000"
+                          },
+                          {
+                            "id": 67,
+                            "subject": "География",
+                            "groupId": 14,
+                            "room": "308",
+                            "lessonNumber": 1
+                          },
+                        ]
+                      homework:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              minimum: 0
+                            lesson:
+                              type: string
+                              description: "Название урока"
+                              example: "Физика"
+                            content:
+                              type: string
+                              description: "Содержание ДЗ"
+                              example: "параграф 63"
+                            done:
+                              type: boolean
+                              description: Пометил ли пользователь это ДЗ как выполненное
+                      controlWorks:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              minimum: 1
+                              example: 63
+                            lesson:
+                              type: string
+                              example: "Алгебра"
+                              description: "Урок, на котором будет эта КР"
+                            date:
+                              type: string
+                              pattern: ^\d{4}-([0]\d|1[0-2])-([0-2]\d|3[01])$
+                              example: "2021-05-29"
+                              description: "День, в который будет эта КР"
+                            name:
+                              type: string
+                              example: "Степени с целым показателем"
+                              description: "Наименование КР"
+                      advertisements:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              minimum: 1
+                              example: 63
+                            content:
+                              type: string
+                              minLength: 1
+                              maxLength: 1024
+                              example: "Не забудьте взять листочки!!!"
+                            targetDate:
+                              type: string
+                              pattern: ^\d{4}-([0]\d|1[0-2])-([0-2]\d|3[01])$
+                              example: "2021-05-29"
+                              description: "Дата, до которой это объявление будет актуально"
+                      marks:
+                        type: array
+                        description: "Оценки"
+                        items:
+                          type: object
+                          additionalProperties:
+                            description: "Ключ – название предмета. В значение все оценки и итоговая оценка"
+                            type: object
+                            properties:
+                              periods:
+                                type: array
+                                description: "Оценки по четвертям"
+                                items:
+                                  type: object
+                                  properties:
+                                    all:
+                                      description: "Все оценки в этой четверти"
+                                      type: array
+                                      minLength: 0
+                                      items:
+                                        type: object
+                                        properties:
+                                          value:
+                                            type: integer
+                                            description: Сама оценка
+                                            example: 4
+                                          date:
+                                            type: string
+                                            description: Дата в формате ISO когда эта ошибка получена
+                                            example: 2021-01-25T00:00:00
+                                          topic:
+                                            type: string
+                                            description: Тема, за которую получена эта ошибка
+                                            example: Неполные квадратные уравнения
+                                          name:
+                                            type: string
+                                            description: За что была получена эта ошибка
+                                            example: Проверка домашнего задания
+                                    total:
+                                      description: "Итоговая оценка за эту четверть"
+                                      nullable: true
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 5
+                                      example: 4
+                              total:
+                                description: "Итоговая оценка за год"
+                                nullable: true
+                                type: integer
+                                minimum: 0
+                                maximum: 5
+                                example: 4
+                        example: [
+                          {
+                            "Алгебра": {
+                              "periods": [
+                                {
+                                  "all": [
+                                    {
+                                      "value": 5,
+                                      "date": "2021-01-16T00:00:00",
+                                      "topic": "Преобразование выражений, содержащих квадратные корни",
+                                      "name": "Контрольная работа по теме"
+                                    },
+                                    {
+                                      "value": 4,
+                                      "date": "2021-01-25T00:00:00",
+                                      "topic": "Неполные квадратные уравнения",
+                                      "name": "Проверка домашнего задания"
+                                    },
+                                    {
+                                      "value": 5,
+                                      "date": "2021-01-27T00:00:00",
+                                      "topic": "Неполные квадратные уравнения",
+                                      "name": "Проверка домашнего задания"
+                                    },
+                                  ],
+                                  "total": 4
+                                }
+                              ],
+                              "total": 4
+                            },
+                            "Физика": {
+                              "periods": [
+                                {
+                                  "all": [
+                                    {
+                                      "value": 4,
+                                      "date": "2020-09-01T00:00:00",
+                                      "topic": "Механическая энергия",
+                                      "name": "Решение задач по теме"
+                                    },
+                                    {
+                                      "value": 4,
+                                      "date": "2020-09-01T00:00:00",
+                                      "topic": "Механическая энергия",
+                                      "name": "Решение задач по теме"
+                                    },
+                                    {
+                                      "value": 4,
+                                      "date": "2020-09-15T00:00:00",
+                                      "topic": "Механическая энергия",
+                                      "name": "Промежуточная аттестация предудущего периода"
+                                    }
+                                  ],
+                                  "total": 4
+                                }
+                              ],
+                              "total": 4
+                            }
+                          }
+                        ]
+        403:
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    enum: [ "forbidden" ]
+        404:
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    enum: [ "not-found" ]
+        500:
+          description: "Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/500"
+
+  /data/lessons:
+    get:
+      tags: [ "Data" ]
+      summary: "Получение списка уроков"
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+          description: Дата в ISO формате с которой нужно получить уроки (включительно)
+          required: true
+        - in: query
+          name: to
+          schema:
+            type: string
+          description: Дата в ISO формате до которой нужно получить уроки (включительно)
+          required: true
+      security:
+        - JWT: [ User ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    description: "Статус операции"
+                    enum:
+                      - true
+                  data:
+                    type: array
+                    description: Список уроков
+                    items:
+                      $ref: "#/components/schemas/lesson"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    description: Статус операции
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    description: Неверно переданы данные
+                    enum:
+                      - "not-validated-error"
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          description: "В каком поле произошла ошибка"
+                          enum:
+                            - from
+                            - to
+                        error:
+                          type: string
+                          description: "Какая это ошибка"
+                          enum:
+                            - NotEmptyValidator
+                        message:
+                          type: string
+                          description: "Человекопонятное описание ошибки"
+        403:
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                    description: "Статус операции"
+                  error:
+                    type: string
+                    enum:
+                      - forbidden
+        404:
+          description: "Not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    enum: [ "not-found" ]
+        500:
+          description: "Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/500"
+
+  /control-work/:
+    post:
+      summary: "Создать контрольную работу"
+      tags:
+        - "Data"
+      security:
+        - JWT: [ User ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                lesson:
+                  type: string
+                  description: "Урок, на котором будет эта КР"
+                  minLength: 0
+                  maxLength: 256
+                  example: "Физика"
+                date:
+                  type: string
+                  description: "Когда будет эта КР. Дата в ISO формате"
+                  example: "2021-05-03T07:45:30.228Z"
+                name:
+                  type: string
+                  description: "Название этой КР"
+                  minLength: 0
+                  maxLength: 256
+                  example: "Работа по электростатике"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                    description: "Статус операции"
+                  id:
+                    type: integer
+                    minimum: 1
+                    description: "ID созданной КР"
+
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                    description: "Статус операции"
+                  error:
+                    type: string
+                    enum:
+                      - "not-validated"
+
+        403:
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                    description: "Статус операции"
+                  error:
+                    type: string
+                    enum:
+                      - forbidden
+
+  /advertisement/:
+    post:
+      summary: "Создать объявление"
+      tags:
+        - "Data"
+      security:
+        - JWT: [ User ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
+                  description: "Содержание объявления"
+                  minLength: 0
+                  maxLength: 2056
+                  example: "Физика"
+                targetDate:
+                  type: string
+                  description: "Дата, до которой это объявление будет актуально. ISO формат"
+                  example: "2021-05-03T07:45:30.228Z"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                    description: "Статус операции"
+                  id:
+                    type: integer
+                    minimum: 1
+                    description: "ID созданного объявления"
+
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                    description: "Статус операции"
+                  error:
+                    type: string
+                    enum:
+                      - "not-validated"
+
+        403:
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                    description: "Статус операции"
+                  error:
+                    type: string
+                    enum:
+                      - forbidden
+
+
+
+  /auth/authenticate/:
+    post:
+      summary: "Авторизация пользователей"
+      tags: [ "Auth" ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: "sanya2005@gmail.com"
+                  description: "Email пользователя"
+                password:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: "12345678a"
+                  description: "Пароль пользователя"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  tokens:
+                    type: object
+                    properties:
+                      auth:
+                        $ref: "#/components/schemas/token"
+                        description: "Токен доступа"
+                      refresh:
+                        $ref: "#/components/schemas/token"
+                        description: "Токен обновления"
+                  id:
+                    type: integer
+                    minimum: 0
+                    description: "ID пользователя"
+        400:
+          description: "Not validated"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    enum:
+                      - "not-validated-error"
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          description: "В каком поле произошла ошибка"
+                          enum:
+                            - email
+                            - password
+                        error:
+                          type: string
+                          description: "Какая это ошибка"
+                          enum:
+                            - NotEmptyValidator
+                        message:
+                          type: string
+                          description: "Человекопонятное описание ошибки"
+        500:
+          description: "Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/500"
+
+  /auth/reauthenticate/:
+    post:
+      summary: "Обновление JWT токенов"
+      tags: [ "Auth" ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: integer
+                  minimum: 0
+                  description: "ID пользователя"
+                refresh:
+                  $ref: "#/components/schemas/token"
+                  description: "Токен обновления"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  tokens:
+                    type: object
+                    properties:
+                      auth:
+                        $ref: "#/components/schemas/token"
+                        description: "Токен доступа"
+                      refresh:
+                        $ref: "#/components/schemas/token"
+                        description: "Токен обновления"
+                  id:
+                    type: integer
+                    minimum: 0
+                    description: "ID пользователя"
+        400:
+          description: "Not validated"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - false
+                  error:
+                    type: string
+                    enum:
+                      - "not-validated-error"
+                      - "invalid-credentials"
+        500:
+          description: "Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/500"
+
+
+
+
+
+
+
+
+
+
+
+
+
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    Api-Token:
+      schema:
+        type: string
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+  schemas:
+    lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          example: 63
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 256
+          description: "Название предмета"
+          example: "Физика"
+        groupId:
+          type: integer
+          minimum: 1
+          example: 10
+          description: "ID группы, у которой будет этот урок"
+        room:
+          type: string
+          minLength: 1
+          maxLength: 256
+          description: "Кабинет, в котором будет этот урок"
+          example: "201"
+        lessonNumber:
+          type: integer
+          minimum: 1
+          description: "Какой по счету урок"
+        date:
+          type: string
+          description: "Дата, в которую пройдет урок вместе с временем начала урока"
+          example: "2021-05-31T09:55:00.000"
+        duration:
+          type: integer
+          description: "Продолжительность урока в минутах"
+          minimum: 0
+          example: 45
+
+
+
+    token:
+      type: string
+      pattern: /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTYyMzkwMjJ9.tbDepxpstvGdW8TC3G8zg4B6rUYAOvfzdceoH48wgRQ"
+
+    500:
+      properties:
+        success:
+          type: boolean
+          enum:
+            - false
+        error:
+          type: string
+          enum: [ "server-error" ]
+
+    customTime:
+      type: object
+      properties:
+        h:
+          type: integer
+          minimum: 0
+          maximum: 23
+          example: 9
+        m:
+          type: integer
+          minimum: 0
+          maximum: 59
+          example: 45
+
+
+
+
+  
+
+
+
+
+
+
